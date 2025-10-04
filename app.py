@@ -10,6 +10,7 @@ from utils.technical_analysis import perform_technical_analysis
 from models.prediction import predict_stock_movement
 from utils.recommendation import generate_recommendation
 from utils.rapidapi_client import fetch_realtime_stock_data
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +18,15 @@ CORS(app)
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Railway monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'stock-analysis-api'
+    }), 200
 
 @app.route('/dashboard')
 def dashboard():

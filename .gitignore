@@ -26,6 +26,9 @@ var/
 # Vercel
 .vercel
 
+# Railway
+.railway
+
 # Virtual Environment
 venv/
 env/
