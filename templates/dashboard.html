@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <!-- Cyberpunk Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ApexCharts for advanced charts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body class="cyberpunk-bg">
+    <nav class="navbar navbar-expand-lg navbar-dark cyberpunk-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="bi bi-graph-up-arrow"></i> <span class="text-neon">INDIAN STOCK MARKET</span> <span class="text-cyber">ANALYSIS</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">HOME</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">DASHBOARD</a>
+                    </li>
+                </ul>
+                <div class="navbar-text text-neon" id="lastRefreshTime">
+                    <i class="bi bi-clock"></i> LAST REFRESH: <span>JUST NOW</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Market Overview</h5>
+                        <div class="form-group mb-0">
+                            <select id="timeframeSelector" class="form-select form-select-sm">
+                                <option value="1mo">1 Month</option>
+                                <option value="3mo">3 Months</option>
+                                <option value="6mo">6 Months</option>
+                                <option value="1y" selected>1 Year</option>
+                                <option value="2y">2 Years</option>
+                                <option value="5y">5 Years</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="text-muted">NIFTY 50</h6>
+                                        <h3 id="niftyValue">--</h3>
+                                        <div id="niftyChange" class="mt-2">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="text-muted">SENSEX</h6>
+                                        <h3 id="sensexValue">--</h3>
+                                        <div id="sensexChange" class="mt-2">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="text-muted">Market Trend</h6>
+                                        <h3 id="marketTrend">--</h3>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div id="marketTrendBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="text-muted">AI Sentiment</h6>
+                                        <h3 id="aiSentiment">--</h3>
+                                        <div class="progress mt-2" style="height: 6px;">
+                                            <div id="aiSentimentBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Stock Performance</h5>
+                        <div class="input-group" style="width: 300px;">
+                            <input type="text" id="stockSymbol" class="form-control" placeholder="Enter stock symbol (e.g., RELIANCE.NS)">
+                            <button class="btn btn-primary" id="loadChartBtn">Load</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="stockChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Technical Indicators</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="indicatorsChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Watchlist</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Change</th>
+                                        <th>Recommendation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="watchlistTable">
+                                    <!-- Watchlist data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">AI Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="analysisContainer">
+                            <div class="text-center py-5">
+                                <p class="text-muted">Select a stock to view AI analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
