@@ -32,7 +32,7 @@ def fetch_realtime_stock_data(symbol):
         # Set headers
         headers = {
             'x-rapidapi-key': RAPID_API_KEY,
-            'x-rapidapi-host': RAPID_API_HOST
+            'x-rapidapi-host': "indian-stock-exchange.p.rapidapi.com"
         }
         
         # Make request
